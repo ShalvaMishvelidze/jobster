@@ -2,6 +2,8 @@ import { useState } from 'react';
 import { FormRow, Logo } from '../components';
 import Wrapper from '../assets/wrappers/RegisterPage';
 import { toast } from 'react-toastify';
+import { useSelector, useDispatch } from 'react-redux';
+import { loginUser, registerUser } from '../features/user/userSlice';
 
 const initialState = {
 	name: '',
@@ -12,6 +14,9 @@ const initialState = {
 
 const Register = () => {
 	const [values, setValues] = useState(initialState);
+	const { user, isLoading } = useSelector((store) => store.user);
+
+	const dispatch = useDispatch();
 
 	const toggleMember = () => {
 		setValues({ ...values, isMember: !values.isMember });
@@ -29,6 +34,11 @@ const Register = () => {
 			toast.error('Please fill out all fields');
 			return;
 		}
+		if (isMember) {
+			dispatch(loginUser({ email, password }));
+			return;
+		}
+		dispatch(registerUser({ name, email, password }));
 	};
 
 	return (
@@ -59,8 +69,12 @@ const Register = () => {
 					value={values.password}
 					handleChange={handleChange}
 				/>
-				<button type="submit" className="btn btn-block">
-					submit
+				<button
+					type="submit"
+					className="btn btn-block"
+					disabled={isLoading}
+				>
+					{isLoading ? 'loading...' : 'submit'}
 				</button>
 				<p>
 					{values.isMember ? 'Not a member yet?' : 'Already a member?'}
